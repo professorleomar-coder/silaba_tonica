@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOGO DA SÍLABA TÔNICA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Fredoka', 'Nunito', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    
+    .wood-plaque {
+      background: linear-gradient(180deg, #92400e 0%, #78350f 100%);
+      box-shadow: 0 10px 0 #451a03, 0 15px 25px rgba(0, 0, 0, 0.4);
+      border: 4px solid #b45309;
+    }
+
+    .plaque-correct {
+      background: linear-gradient(180deg, #10b981 0%, #059669 60%, #047857 100%);
+      box-shadow: 0 10px 0 #064e3b, 0 20px 30px rgba(16, 185, 129, 0.4);
+      border: 4px solid #6ee7b7;
+    }
+
+    .plaque-wrong {
+      background: linear-gradient(180deg, #ef4444 0%, #dc2626 60%, #b91c1c 100%);
+      box-shadow: 0 10px 0 #7f1d1d, 0 20px 30px rgba(239, 68, 68, 0.4);
+      border: 4px solid #fca5a5;
+    }
+
+    .btn-3d {
+      transition: all 0.15s ease-in-out;
+      transform: translateY(0);
+    }
+    .btn-3d:hover {
+      filter: brightness(1.05);
+      transform: translateY(-2px);
+    }
+    .btn-3d:active {
+      transform: translateY(4px);
+    }
+
+    .btn-cyan {
+      background: linear-gradient(180deg, #06b6d4 0%, #0891b2 100%);
+      box-shadow: 0 6px 0 #0e7490, 0 10px 15px rgba(6, 182, 212, 0.3);
+      border-bottom: 2px solid #0891b2;
+    }
+    .btn-cyan:active {
+      box-shadow: 0 2px 0 #0e7490;
+    }
+
+    .btn-amber {
+      background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+      box-shadow: 0 6px 0 #b45309, 0 10px 15px rgba(245, 158, 11, 0.3);
+      border-bottom: 2px solid #d97706;
+    }
+    .btn-amber:active {
+      box-shadow: 0 2px 0 #b45309;
+    }
+
+    .btn-violet {
+      background: linear-gradient(180deg, #8b5cf6 0%, #7c3aed 100%);
+      box-shadow: 0 6px 0 #6d28d9, 0 10px 15px rgba(139, 92, 246, 0.3);
+      border-bottom: 2px solid #7c3aed;
+    }
+    .btn-violet:active {
+      box-shadow: 0 2px 0 #6d28d9;
+    }
+
+    .btn-green {
+      background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+      box-shadow: 0 6px 0 #15803d, 0 10px 15px rgba(34, 197, 94, 0.3);
+    }
+    .btn-green:active {
+      box-shadow: 0 2px 0 #15803d;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.6) rotate(-3deg); opacity: 0; }
+      70% { transform: scale(1.05) rotate(1deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .pop-in {
+      animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .shake-anim {
+      animation: shake 0.4s ease-in-out;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.6)); }
+      50% { transform: scale(1.08); filter: drop-shadow(0 0 20px rgba(250, 204, 21, 0.9)); }
+    }
+    .pulse-glow {
+      animation: pulseGlow 1.5s infinite ease-in-out;
+    }
+
+    .confetti-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 50;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-sky-950 min-h-screen text-white flex flex-col justify-between p-3 sm:p-6 relative overflow-x-hidden">
+  <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+
+  <!-- Top Bar / Header -->
+  <header class="max-w-4xl w-full mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 shadow-lg">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-xl bg-amber-400 text-amber-950 flex items-center justify-center font-black text-2xl shadow-inner">
+        ⚡
+      </div>
+      <div>
+        <h1 class="text-xl sm:text-2xl font-black tracking-wide text-amber-300 drop-shadow">JOGO DA SÍLABA TÔNICA</h1>
+        <p class="text-xs sm:text-sm text-sky-200">Identifique a sílaba mais forte das 90 palavras!</p>
+      </div>
+    </div>
+
+    <!-- Quick Stats & Settings -->
+    <div class="flex items-center gap-2 sm:gap-4">
+      <div class="flex items-center gap-1.5 bg-black/30 px-3 py-1.5 rounded-xl border border-white/10 text-xs sm:text-sm font-bold">
+        <span>🔥</span>
+        <span class="text-amber-400" id="streakCounter">0</span>
+      </div>
+      <div class="flex items-center gap-1.5 bg-black/30 px-3 py-1.5 rounded-xl border border-white/10 text-xs sm:text-sm font-bold">
+        <span>🏆</span>
+        <span class="text-yellow-300" id="scoreCounter">0 pts</span>
+      </div>
+      <button id="soundToggleBtn" onclick="toggleSound()" title="Ativar/Desativar Som" class="w-10 h-10 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center transition text-lg">
+        🔊
+      </button>
+      <button onclick="openHelpModal()" title="Dica e Regras" class="w-10 h-10 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 flex items-center justify-center font-bold text-lg transition shadow">
+        ❓
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Game Container -->
+  <main class="max-w-3xl w-full mx-auto my-auto py-4">
+    <!-- Progress & Counters Card -->
+    <div class="bg-black/25 rounded-2xl p-3 sm:p-4 mb-4 backdrop-blur-sm border border-white/10 flex flex-col gap-2">
+      <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-sky-200">
+        <span id="progressText">Palavra 1 de 90</span>
+        <div class="flex items-center gap-3">
+          <span class="text-emerald-400 flex items-center gap-1">✔ <span id="correctCounter">0</span></span>
+          <span class="text-rose-400 flex items-center gap-1">✖ <span id="wrongCounter">0</span></span>
+        </div>
+      </div>
+      <!-- Progress Bar -->
+      <div class="w-full h-3 bg-black/40 rounded-full overflow-hidden p-0.5 border border-white/10">
+        <div id="progressBar" class="h-full bg-gradient-to-r from-amber-400 via-emerald-400 to-sky-400 rounded-full transition-all duration-300" style="width: 1%;"></div>
+      </div>
+    </div>
+
+    <!-- Active Card or Placa Area -->
+    <div id="gamePlayArea" class="relative">
+
+      <!-- THE WORD DISPLAY CARD -->
+      <div id="wordCard" class="bg-gradient-to-b from-white/15 to-white/5 rounded-3xl p-6 sm:p-8 backdrop-blur-md border-2 border-white/20 shadow-2xl text-center relative overflow-hidden transition-all duration-300">
+        <!-- Floating tag -->
+        <div class="inline-flex items-center gap-2 bg-indigo-600/80 text-indigo-100 text-xs sm:text-sm font-extrabold px-3 py-1 rounded-full mb-4 uppercase tracking-wider border border-indigo-400/30">
+          <span>🎯 Qual é a sílaba tônica?</span>
+        </div>
+
+        <!-- The Target Word -->
+        <div class="my-3 sm:my-5 flex items-center justify-center gap-3">
+          <span id="currentWord" class="text-4xl sm:text-6xl font-black tracking-wider text-amber-300 drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
+            CARREGANDO...
+          </span>
+          <!-- Audio button for speech synthesis -->
+          <button id="speakBtn" onclick="speakCurrentWord()" title="Ouvir pronúncia" class="w-12 h-12 rounded-2xl bg-amber-400/20 hover:bg-amber-400/40 text-amber-300 flex items-center justify-center text-xl transition border border-amber-300/30">
+            🗣️
+          </button>
+        </div>
+
+        <p class="text-xs sm:text-sm text-sky-200/90 italic mb-6">
+          Dica: Fale a palavra em voz alta para sentir onde a sua voz sobe com mais força!
+        </p>
+
+        <!-- 3 OPTIONS BUTTONS -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-6">
+          <!-- ANTEPENÚLTIMA -->
+          <button onclick="handleUserChoice('antepenúltima')" class="btn-3d btn-violet rounded-2xl p-4 text-center group cursor-pointer">
+            <div class="text-xs font-black uppercase text-violet-200 tracking-wider mb-1">3ª de trás pra frente</div>
+            <div class="text-lg sm:text-xl font-black text-white">Antepenúltima</div>
+            <div class="text-[11px] text-violet-200 font-semibold mt-1 bg-black/20 rounded-md py-0.5 px-2 inline-block">Proparoxítona</div>
+          </button>
+
+          <!-- PENÚLTIMA -->
+          <button onclick="handleUserChoice('penúltima')" class="btn-3d btn-amber rounded-2xl p-4 text-center group cursor-pointer">
+            <div class="text-xs font-black uppercase text-amber-100 tracking-wider mb-1">2ª de trás pra frente</div>
+            <div class="text-lg sm:text-xl font-black text-white">Penúltima</div>
+            <div class="text-[11px] text-amber-100 font-semibold mt-1 bg-black/20 rounded-md py-0.5 px-2 inline-block">Paroxítona</div>
+          </button>
+
+          <!-- ÚLTIMA -->
+          <button onclick="handleUserChoice('última')" class="btn-3d btn-cyan rounded-2xl p-4 text-center group cursor-pointer">
+            <div class="text-xs font-black uppercase text-cyan-100 tracking-wider mb-1">1ª de trás pra frente</div>
+            <div class="text-lg sm:text-xl font-black text-white">Última</div>
+            <div class="text-[11px] text-cyan-100 font-semibold mt-1 bg-black/20 rounded-md py-0.5 px-2 inline-block">Oxítona</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- PLACA DE FEEDBACK (CORRETO / ERRADO) -->
+      <div id="feedbackPlaqueOverlay" class="hidden absolute inset-0 z-20 flex items-center justify-center p-2">
+        <!-- The Plaque Container -->
+        <div id="plaqueContent" class="w-full max-w-lg rounded-3xl p-6 sm:p-8 text-center text-white pop-in relative">
+          
+          <!-- Plaque Nails / Screws simulation -->
+          <div class="absolute top-3 left-4 w-3.5 h-3.5 rounded-full bg-yellow-200/60 border border-yellow-800 shadow-inner"></div>
+          <div class="absolute top-3 right-4 w-3.5 h-3.5 rounded-full bg-yellow-200/60 border border-yellow-800 shadow-inner"></div>
+          <div class="absolute bottom-3 left-4 w-3.5 h-3.5 rounded-full bg-yellow-200/60 border border-yellow-800 shadow-inner"></div>
+          <div class="absolute bottom-3 right-4 w-3.5 h-3.5 rounded-full bg-yellow-200/60 border border-yellow-800 shadow-inner"></div>
+
+          <!-- Icon / Badge -->
+          <div id="plaqueIcon" class="text-5xl sm:text-6xl mb-2 drop-shadow">🎉</div>
+          
+          <!-- Title: PLACA CORRETO or PLACA ERRADO -->
+          <h2 id="plaqueTitle" class="text-2xl sm:text-4xl font-black uppercase tracking-wider drop-shadow-md mb-2">
+            PLACA CORRETO!
+          </h2>
+
+          <!-- Subtitle / Message -->
+          <p id="plaqueSubtitle" class="text-sm sm:text-base font-semibold text-white/95 mb-4">
+            Você acertou em cheio!
+          </p>
+
+          <!-- Syllable breakdown box -->
+          <div class="bg-black/35 rounded-2xl p-4 my-4 border border-white/20 backdrop-blur-sm">
+            <div class="text-xs uppercase tracking-wider font-extrabold text-amber-300 mb-2">Divisão Silábica:</div>
+            <div id="syllablesContainer" class="flex flex-wrap items-center justify-center gap-2 text-xl sm:text-2xl font-black">
+              <!-- Syllable badges will be injected here -->
+            </div>
+            <div id="plaqueExplanation" class="text-xs sm:text-sm font-semibold mt-3 text-sky-100">
+              <!-- e.g. "A sílaba tônica é a ÚLTIMA (Oxítona)!" -->
+            </div>
+          </div>
+
+          <!-- Next Word Button -->
+          <button id="nextBtn" onclick="nextWord()" class="btn-3d w-full py-3.5 sm:py-4 px-6 rounded-2xl font-black text-lg sm:text-xl text-white tracking-wide shadow-lg cursor-pointer bg-white/20 hover:bg-white/30 border-2 border-white/40 flex items-center justify-center gap-2">
+            <span>Próxima Palavra</span>
+            <span class="text-2xl">➔</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Final Game Over Screen (Hidden by default) -->
+    <div id="finalReportCard" class="hidden bg-gradient-to-b from-white/15 to-white/5 rounded-3xl p-6 sm:p-8 backdrop-blur-md border-2 border-white/20 shadow-2xl text-center">
+      <div class="text-6xl sm:text-7xl mb-3 pulse-glow">👑</div>
+      <h2 class="text-3xl sm:text-4xl font-black text-amber-300 drop-shadow mb-2">PARABÉNS, CAMPEÃO!</h2>
+      <p class="text-base sm:text-lg text-sky-200 mb-6">Você completou o JOGO DA SÍLABA TÔNICA!</p>
+
+      <!-- Results Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-lg mx-auto mb-6">
+        <div class="bg-black/30 p-3 rounded-2xl border border-white/10">
+          <div class="text-2xl font-black text-white" id="finalTotal">90</div>
+          <div class="text-xs text-sky-200">Palavras</div>
+        </div>
+        <div class="bg-black/30 p-3 rounded-2xl border border-emerald-500/30">
+          <div class="text-2xl font-black text-emerald-400" id="finalCorrect">0</div>
+          <div class="text-xs text-emerald-200">Acertos</div>
+        </div>
+        <div class="bg-black/30 p-3 rounded-2xl border border-rose-500/30">
+          <div class="text-2xl font-black text-rose-400" id="finalWrong">0</div>
+          <div class="text-xs text-rose-200">Erros</div>
+        </div>
+        <div class="bg-black/30 p-3 rounded-2xl border border-amber-500/30">
+          <div class="text-2xl font-black text-amber-300" id="finalScore">0</div>
+          <div class="text-xs text-amber-200">Pontos</div>
+        </div>
+      </div>
+
+      <!-- Performance message -->
+      <div id="performanceMessage" class="text-lg font-bold text-emerald-300 mb-6"></div>
+
+      <!-- Action buttons -->
+      <div class="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+        <button onclick="restartGame()" class="btn-3d btn-green flex-1 py-3.5 px-6 rounded-2xl font-black text-lg text-white shadow-lg cursor-pointer flex items-center justify-center gap-2">
+          <span>🔄 Jogar Novamente</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-4xl w-full mx-auto text-center text-xs text-sky-300/80 py-2">
+    <span>💡 Dica da Professora: Conte as sílabas do final da palavra para o começo (1ª = Última, 2ª = Penúltima, 3ª = Antepenúltima)!</span>
+  </footer>
+
+  <!-- Help & Rules Modal -->
+  <div id="helpModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+    <div class="bg-slate-900 border-2 border-amber-400/40 rounded-3xl max-w-lg w-full p-6 text-white pop-in shadow-2xl relative">
+      <div class="flex justify-between items-center mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📚</span>
+          <h3 class="text-xl font-black text-amber-300">Como Jogar e Aprender</h3>
+        </div>
+        <button onclick="closeHelpModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center font-bold">✕</button>
+      </div>
+
+      <div class="space-y-3 text-sm text-sky-100">
+        <div class="p-3 bg-white/5 rounded-xl border border-cyan-400/30">
+          <span class="font-bold text-cyan-300">1. ÚLTIMA (Oxítona):</span>
+          <p class="text-xs text-gray-200 mt-1">A voz sobe no finalzinho da palavra! Ex: ca-<b>FÉ</b>, pa-s-<b>TEL</b>, tam-<b>BOR</b>.</p>
+        </div>
+        <div class="p-3 bg-white/5 rounded-xl border border-amber-400/30">
+          <span class="font-bold text-amber-300">2. PENÚLTIMA (Paroxítona):</span>
+          <p class="text-xs text-gray-200 mt-1">A voz sobe na sílaba que vem antes da última! Ex: es-<b>CO</b>-la, ca-<b>DER</b>-no, <b>LÁ</b>-pis.</p>
+        </div>
+        <div class="p-3 bg-white/5 rounded-xl border border-violet-400/30">
+          <span class="font-bold text-violet-300">3. ANTEPENÚLTIMA (Proparoxítona):</span>
+          <p class="text-xs text-gray-200 mt-1">A voz sobe três sílabas antes do fim! Todas têm acento! Ex: <b>ÁR</b>-vo-re, <b>MÚ</b>-si-ca, <b>Ô</b>-ni-bus.</p>
+        </div>
+        <div class="p-3 bg-amber-400/10 rounded-xl border border-amber-400/20 text-xs text-amber-200">
+          📢 <b>O Truque do Portão:</b> Imagine que você está chamando a palavra do outro lado da rua: <i>"Ôôô ca-déééér-no!"</i> A sílaba que você estica é a tônica!
+        </div>
+      </div>
+
+      <button onclick="closeHelpModal()" class="btn-3d btn-amber w-full py-3 rounded-xl font-black text-white mt-5">
+        Entendi, vamos jogar! 🚀
+      </button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT GAME LOGIC -->
+  <script>
+    // 90 PALAVRAS: 30 Oxítonas (última), 30 Paroxítonas (penúltima), 30 Proparoxítonas (antepenúltima)
+    // Vocabulário comum do cotidiano para crianças de 10 e 11 anos
+    const BANCO_DE_PALAVRAS = [
+      // 30 OXÍTONAS (ÚLTIMA SÍLABA TÔNICA)
+      { palavra: "café", silabas: ["ca", "fé"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "sofá", silabas: ["so", "fá"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "picolé", silabas: ["pi", "co", "lé"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "jacaré", silabas: ["ja", "ca", "ré"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "caju", silabas: ["ca", "ju"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "urubu", silabas: ["u", "ru", "bu"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "tambor", silabas: ["tam", "bor"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "jardim", silabas: ["jar", "dim"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "patins", silabas: ["pa", "tins"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "bambu", silabas: ["bam", "bu"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "pastel", silabas: ["pas", "tel"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "troféu", silabas: ["tro", "féu"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "computador", silabas: ["com", "pu", "ta", "dor"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "funil", silabas: ["fu", "nil"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "chulé", silabas: ["chu", "lé"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "boné", silabas: ["bo", "né"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "dominó", silabas: ["do", "mi", "nó"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "nariz", silabas: ["na", "riz"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "anel", silabas: ["a", "nel"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "saci", silabas: ["sa", "ci"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "balão", silabas: ["ba", "lão"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "guaraná", silabas: ["gua", "ra", "ná"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "abacaxi", silabas: ["a", "ba", "ca", "xi"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "escorpião", silabas: ["es", "cor", "pi", "ão"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "coração", silabas: ["co", "ra", "ção"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "gibi", silabas: ["gi", "bi"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "farol", silabas: ["fa", "rol"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "sabão", silabas: ["sa", "bão"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "colher", silabas: ["co", "lher"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+      { palavra: "jiló", silabas: ["ji", "ló"], tonicaIndexFromEnd: 1, posicao: "última", classificacao: "Oxítona" },
+
+      // 30 PAROXÍTONAS (PENÚLTIMA SÍLABA TÔNICA)
+      { palavra: "escola", silabas: ["es", "co", "la"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "caderno", silabas: ["ca", "der", "no"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "janela", silabas: ["ja", "ne", "la"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "mochila", silabas: ["mo", "chi", "la"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "menina", silabas: ["me", "ni", "na"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "menino", silabas: ["me", "ni", "no"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "amigo", silabas: ["a", "mi", "go"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "caneta", silabas: ["ca", "ne", "ta"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "sapato", silabas: ["sa", "pa", "to"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "relógio", silabas: ["re", "ló", "gio"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "régua", silabas: ["ré", "gua"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "lápis", silabas: ["lá", "pis"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "açúcar", silabas: ["a", "çú", "car"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "álbum", silabas: ["ál", "bum"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "amarelo", silabas: ["a", "ma", "re", "lo"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "vírus", silabas: ["ví", "rus"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "chave", silabas: ["cha", "ve"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "cachorro", silabas: ["ca", "chor", "ro"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "bola", silabas: ["bo", "la"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "porta", silabas: ["por", "ta"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "cadeira", silabas: ["ca", "dei", "ra"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "mesa", silabas: ["me", "sa"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "palhaço", silabas: ["pa", "lha", "ço"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "camisa", silabas: ["ca", "mi", "sa"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "tesoura", silabas: ["te", "sou", "ra"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "borracha", silabas: ["bor", "ra", "cha"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "sorvete", silabas: ["sor", "ve", "te"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "espelho", silabas: ["es", "pe", "lho"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "tênis", silabas: ["tê", "nis"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+      { palavra: "pipoca", silabas: ["pi", "po", "ca"], tonicaIndexFromEnd: 2, posicao: "penúltima", classificacao: "Paroxítona" },
+
+      // 30 PROPAROXÍTONAS (ANTEPENÚLTIMA SÍLABA TÔNICA)
+      { palavra: "árvore", silabas: ["ár", "vo", "re"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "música", silabas: ["mú", "si", "ca"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "pássaro", silabas: ["pás", "sa", "ro"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "mágico", silabas: ["má", "gi", "co"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "óculos", silabas: ["ó", "cu", "los"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "lâmpada", silabas: ["lâm", "pa", "da"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "ônibus", silabas: ["ô", "ni", "bus"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "médico", silabas: ["mé", "di", "co"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "xícara", silabas: ["xí", "ca", "ra"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "número", silabas: ["nú", "me", "ro"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "sábado", silabas: ["sá", "ba", "do"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "príncipe", silabas: ["prín", "ci", "pe"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "máquina", silabas: ["má", "qui", "na"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "plástico", silabas: ["plás", "ti", "co"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "trânsito", silabas: ["trân", "si", "to"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "abóbora", silabas: ["a", "bó", "bo", "ra"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "relâmpago", silabas: ["re", "lâm", "pa", "go"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "pêssego", silabas: ["pês", "se", "go"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "líquido", silabas: ["lí", "qui", "do"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "câmera", silabas: ["câ", "me", "ra"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "página", silabas: ["pá", "gi", "na"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "pirâmide", silabas: ["pi", "râ", "mi", "de"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "fósforo", silabas: ["fós", "fo", "ro"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "quilômetro", silabas: ["qui", "lô", "me", "tro"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "fábrica", silabas: ["fá", "bri", "ca"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "histórico", silabas: ["his", "tó", "ri", "co"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "título", silabas: ["tí", "tu", "lo"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "público", silabas: ["pú", "bli", "co"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "brócolis", silabas: ["bró", "co", "lis"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" },
+      { palavra: "círculo", silabas: ["cír", "cu", "lo"], tonicaIndexFromEnd: 3, posicao: "antepenúltima", classificacao: "Proparoxítona" }
+    ];
+
+    // ESTADO DO JOGO
+    let deck = [];
+    let currentIndex = 0;
+    let score = 0;
+    let correctCount = 0;
+    let wrongCount = 0;
+    let currentStreak = 0;
+    let isAnswered = false;
+    let soundEnabled = true;
+
+    // Web Audio Context for synthesizer sound effects (works offline without external files)
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playTone(freq, type, duration, startTime = 0, gainLevel = 0.2) {
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + startTime);
+
+        gain.gain.setValueAtTime(gainLevel, ctx.currentTime + startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startTime + duration);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(ctx.currentTime + startTime);
+        osc.stop(ctx.currentTime + startTime + duration);
+      } catch (e) {
+        console.warn('Audio tone error:', e);
+      }
+    }
+
+    function playCorrectSound() {
+      if (!soundEnabled) return;
+      // Cheerful chime: C5 -> E5 -> G5 -> C6
+      playTone(523.25, 'triangle', 0.15, 0.00, 0.25);
+      playTone(659.25, 'triangle', 0.15, 0.08, 0.25);
+      playTone(783.99, 'triangle', 0.20, 0.16, 0.25);
+      playTone(1046.50, 'sine', 0.35, 0.24, 0.30);
+    }
+
+    function playWrongSound() {
+      if (!soundEnabled) return;
+      // Gentle buzzer / downward boing
+      playTone(220, 'sawtooth', 0.2, 0.00, 0.15);
+      playTone(180, 'sawtooth', 0.25, 0.12, 0.15);
+    }
+
+    function playVictoryFanfare() {
+      if (!soundEnabled) return;
+      const notes = [523, 659, 784, 1046, 784, 1046];
+      const times = [0, 0.15, 0.3, 0.45, 0.6, 0.8];
+      notes.forEach((freq, i) => {
+        playTone(freq, 'triangle', 0.25, times[i], 0.25);
+      });
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundToggleBtn').textContent = soundEnabled ? '🔊' : '🔇';
+    }
+
+    // TTS SPEECH SYNTHESIS (Pronunciation)
+    function speakCurrentWord() {
+      if (!('speechSynthesis' in window)) return;
+      const currentItem = deck[currentIndex];
+      if (!currentItem) return;
+
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(currentItem.palavra);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.9; // Slightly slower for clarity
+      utterance.pitch = 1.05;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // Fisher-Yates Shuffle
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // START / RESTART GAME
+    function restartGame() {
+      deck = shuffle(BANCO_DE_PALAVRAS);
+      currentIndex = 0;
+      score = 0;
+      correctCount = 0;
+      wrongCount = 0;
+      currentStreak = 0;
+      isAnswered = false;
+
+      document.getElementById('finalReportCard').classList.add('hidden');
+      document.getElementById('gamePlayArea').classList.remove('hidden');
+
+      updateStatsUI();
+      renderCurrentWord();
+    }
+
+    function updateStatsUI() {
+      document.getElementById('scoreCounter').textContent = `${score} pts`;
+      document.getElementById('streakCounter').textContent = currentStreak;
+      document.getElementById('correctCounter').textContent = correctCount;
+      document.getElementById('wrongCounter').textContent = wrongCount;
+
+      const total = deck.length;
+      document.getElementById('progressText').textContent = `Palavra ${currentIndex + 1} de ${total}`;
+      const percentage = ((currentIndex) / total) * 100;
+      document.getElementById('progressBar').style.width = `${Math.max(percentage, 2)}%`;
+    }
+
+    function renderCurrentWord() {
+      isAnswered = false;
+      const item = deck[currentIndex];
+      
+      // Update word element with a fresh pop animation
+      const wordEl = document.getElementById('currentWord');
+      wordEl.textContent = item.palavra.toUpperCase();
+      wordEl.classList.remove('pop-in');
+      void wordEl.offsetWidth; // Trigger reflow
+      wordEl.classList.add('pop-in');
+
+      // Hide feedback plaque
+      document.getElementById('feedbackPlaqueOverlay').classList.add('hidden');
+      updateStatsUI();
+    }
+
+    // USER CLICKS ONE OF THE 3 BUTTONS: "última", "penúltima" or "antepenúltima"
+    function handleUserChoice(choice) {
+      if (isAnswered) return;
+      isAnswered = true;
+
+      const currentItem = deck[currentIndex];
+      const isCorrect = choice === currentItem.posicao;
+
+      if (isCorrect) {
+        correctCount++;
+        currentStreak++;
+        const streakBonus = currentStreak > 1 ? currentStreak * 20 : 0;
+        score += 100 + streakBonus;
+        playCorrectSound();
+        triggerConfetti();
+        showPlaque(true, currentItem, choice);
+      } else {
+        wrongCount++;
+        currentStreak = 0;
+        playWrongSound();
+        showPlaque(false, currentItem, choice);
+      }
+
+      updateStatsUI();
+    }
+
+    // SHOW PLACA CORRETO OU PLACA ERRADO
+    function showPlaque(isCorrect, item, userChoice) {
+      const overlay = document.getElementById('feedbackPlaqueOverlay');
+      const plaqueContent = document.getElementById('plaqueContent');
+      const plaqueIcon = document.getElementById('plaqueIcon');
+      const plaqueTitle = document.getElementById('plaqueTitle');
+      const plaqueSubtitle = document.getElementById('plaqueSubtitle');
+      const plaqueExplanation = document.getElementById('plaqueExplanation');
+      const syllablesContainer = document.getElementById('syllablesContainer');
+
+      // Reset plaque styles
+      plaqueContent.classList.remove('plaque-correct', 'plaque-wrong', 'shake-anim', 'pop-in');
+      void plaqueContent.offsetWidth; // Reflow
+
+      if (isCorrect) {
+        plaqueContent.classList.add('plaque-correct', 'pop-in');
+        plaqueIcon.textContent = '🎉 ⭐ 🎉';
+        plaqueTitle.textContent = 'PLACA CORRETO!';
+        plaqueSubtitle.innerHTML = `Sensacional! A resposta é mesmo <b>${item.posicao.toUpperCase()}</b>!`;
+      } else {
+        plaqueContent.classList.add('plaque-wrong', 'shake-anim');
+        plaqueIcon.textContent = '❌ ⚠️ ❌';
+        plaqueTitle.textContent = 'PLACA ERRADO!';
+        plaqueSubtitle.innerHTML = `Você escolheu <i>${userChoice}</i>, mas a resposta correta é <b>${item.posicao.toUpperCase()}</b>!`;
+      }
+
+      // Render syllables and highlight the tonic one
+      syllablesContainer.innerHTML = '';
+      const totalSilabas = item.silabas.length;
+      const tonicIndexFromFront = totalSilabas - item.tonicaIndexFromEnd;
+
+      item.silabas.forEach((silaba, idx) => {
+        const isTonic = idx === tonicIndexFromFront;
+        const badge = document.createElement('div');
+        badge.className = isTonic 
+          ? 'px-3 py-1.5 rounded-xl bg-amber-300 text-amber-950 font-black shadow-lg border-2 border-white transform scale-110 pulse-glow flex flex-col items-center'
+          : 'px-3 py-1.5 rounded-xl bg-white/20 text-white font-bold border border-white/20 flex flex-col items-center';
+
+        // Tag under the syllable indicating its position
+        let posLabel = '';
+        if (idx === totalSilabas - 1) posLabel = 'Última';
+        else if (idx === totalSilabas - 2) posLabel = 'Penúltima';
+        else if (idx === totalSilabas - 3) posLabel = 'Antepenúltima';
+
+        badge.innerHTML = `
+          <span>${silaba.toUpperCase()}</span>
+          ${posLabel ? `<span class="text-[9px] uppercase tracking-tighter opacity-80 mt-0.5">${posLabel}</span>` : ''}
+        `;
+        syllablesContainer.appendChild(badge);
+      });
+
+      // Explanation sentence
+      plaqueExplanation.innerHTML = `
+        A palavra <b>${item.palavra.toUpperCase()}</b> tem a sílaba mais forte na 
+        <span class="text-amber-300 underline font-extrabold">${item.posicao.toUpperCase()}</span> posição, 
+        por isso ela é uma palavra <b>${item.classificacao.toUpperCase()}</b>!
+      `;
+
+      overlay.classList.remove('hidden');
+    }
+
+    // NEXT WORD OR GAME OVER
+    function nextWord() {
+      currentIndex++;
+      if (currentIndex < deck.length) {
+        renderCurrentWord();
+      } else {
+        showFinalReport();
+      }
+    }
+
+    // FINAL REPORT
+    function showFinalReport() {
+      playVictoryFanfare();
+      triggerConfetti(80);
+
+      document.getElementById('gamePlayArea').classList.add('hidden');
+      const report = document.getElementById('finalReportCard');
+      report.classList.remove('hidden');
+
+      document.getElementById('finalTotal').textContent = deck.length;
+      document.getElementById('finalCorrect').textContent = correctCount;
+      document.getElementById('finalWrong').textContent = wrongCount;
+      document.getElementById('finalScore').textContent = `${score} pts`;
+
+      const percentage = Math.round((correctCount / deck.length) * 100);
+      const perfMsg = document.getElementById('performanceMessage');
+
+      if (percentage >= 90) {
+        perfMsg.innerHTML = `🌟 DESEMPENHO LENDÁRIO! (${percentage}% de acertos)<br><span class="text-white text-sm">Você é um mestre absoluto da Língua Portuguesa! 🏆</span>`;
+      } else if (percentage >= 70) {
+        perfMsg.innerHTML = `👏 MUITO BEM! (${percentage}% de acertos)<br><span class="text-white text-sm">Você demonstrou ótimo conhecimento sobre sílabas tônicas! 🥈</span>`;
+      } else if (percentage >= 50) {
+        perfMsg.innerHTML = `👍 BOM TRABALHO! (${percentage}% de acertos)<br><span class="text-white text-sm">Continue treinando o truque de chamar a palavra no portão! 🥉</span>`;
+      } else {
+        perfMsg.innerHTML = `💪 VALEU A TENTATIVA! (${percentage}% de acertos)<br><span class="text-white text-sm">Dê uma olhadinha nas dicas e jogue novamente para melhorar sua nota!</span>`;
+      }
+    }
+
+    // HELP MODAL
+    function openHelpModal() {
+      document.getElementById('helpModal').classList.remove('hidden');
+    }
+    function closeHelpModal() {
+      document.getElementById('helpModal').classList.add('hidden');
+    }
+
+    // KEYBOARD SHORTCUTS (1 = Antepenúltima, 2 = Penúltima, 3 = Última, Espaço = Próxima)
+    window.addEventListener('keydown', (e) => {
+      const overlay = document.getElementById('feedbackPlaqueOverlay');
+      const isPlaqueOpen = !overlay.classList.contains('hidden');
+
+      if (isPlaqueOpen) {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          nextWord();
+        }
+      } else {
+        if (e.key === '1') handleUserChoice('antepenúltima');
+        else if (e.key === '2') handleUserChoice('penúltima');
+        else if (e.key === '3') handleUserChoice('última');
+      }
+    });
+
+    // SIMPLE VIBRANT CANVAS CONFETTI
+    function triggerConfetti(count = 35) {
+      const canvas = document.getElementById('confettiCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      const colors = ['#f59e0b', '#10b981', '#06b6d4', '#8b5cf6', '#ec4899', '#f43f5e'];
+
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height * 0.45,
+          vx: (Math.random() - 0.5) * 12,
+          vy: (Math.random() - 1.2) * 10,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: Math.random() * 8 + 4,
+          life: 1
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let active = false;
+
+        particles.forEach(p => {
+          if (p.life > 0) {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.35; // gravity
+            p.life -= 0.02;
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = Math.max(p.life, 0);
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+            active = true;
+          }
+        });
+
+        if (active) requestAnimationFrame(animate);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      animate();
+    }
+
+    // INITIALIZE ON LOAD
+    window.addEventListener('DOMContentLoaded', () => {
+      restartGame();
+    });
+  </script>
+</body>
+</html>
